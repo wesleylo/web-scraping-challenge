@@ -5,8 +5,8 @@ import pandas as pd
 import datetime as dt
 
 def scrape():
-    executable_path = {'executable_path': '/usr/local/bin/node_modules/chromedriver/bin/chromedriver'}
-    # executable_path = {'executable_path': '/usr/local/bin/chromedriver'}
+    # executable_path = {'executable_path': '/usr/local/bin/node_modules/chromedriver/bin/chromedriver'}
+    executable_path = {'executable_path': '/usr/local/bin/chromedriver'}
     browser = Browser('chrome', **executable_path)
 
     # URL of page to scrape
