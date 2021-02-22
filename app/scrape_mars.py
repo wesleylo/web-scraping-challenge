@@ -1,6 +1,6 @@
 # Import Splinter, BeautifulSoup, and Pandas
 from splinter import Browser
-from bs4 import BeautifulSoup as soup
+from bs4 import BeautifulSoup as bs
 import pandas as pd
 import datetime as dt
 
@@ -17,12 +17,16 @@ def scrape():
     html = browser.html
     soup = bs(html, 'html.parser')
 
+    mars_data = {}
+
     # collect latest news title
-    news_title = soup.select_one('div.content_title a').text
+    news_title = soup.select_one('div.content_title a').text #!
+    mars_data['news_title'] = news_title
 
     # find the paragraph text of the lastest news article
     results = soup.find("div", class_="list_text") # find div
     news_paragraph = results.find("div", class_="article_teaser_body").text #!
+    mars_data['news_paragraph'] = news_paragraph
 
     ## JPL Feature Image ##
 
@@ -34,6 +38,8 @@ def scrape():
     html = browser.html
     img_soup = bs(html, 'html.parser')
     img_src = img_soup.select_one('img').get("src") #!
+    mars_data['img_src'] = img_src
+
 
 
     ## Mars Facts ##
@@ -43,6 +49,7 @@ def scrape():
 
     mars_facts_df.columns = ["Fact", "Mars"]
     mars_facts_df.set_index("Fact", inplace=True) #!
+    mars_data['mars_facts'] = mars_facts_df.to_html(classes="dataframe, table, table-bordered, table-hover")
 
     ## Hemispheres ##
 
@@ -58,32 +65,30 @@ def scrape():
 
 
     for i in range(len(hemi_links)):
-        hemispheres = {}
+        # hemisphere = {}
         
-        hemispheres['title'] = browser.find_by_css("h3")[i].text
+        hem_title = browser.find_by_css("h3")[i].text
         
         browser.find_by_css("h3")[i].click()
         
         image = browser.links.find_by_text('Sample').first
-        hemispheres['image_url'] = image["href"]
+        hem_img_url = image["href"]
+
+        hem_dict = {
+            'title:': hem_title,
+            'img_url': hem_img_url
+        }
         
-        hemisphere_urls.append(hemispheres) #!
+        hemisphere_urls.append(hem_dict) #!
+        mars_data['hemisphere_urls'] = hemisphere_urls
+
         browser.back()
 
 
-    # store results (!) in a dictionary
-    data = {
-        "news_title": news_title,
-        "news_paragraph": news_paragraph,
-        "featured_image": img_src,
-        "facts": mars_facts_df.to_html(),
-        "hemispheres": hemisphere_urls,
-        "last_modified": dt.datetime.now()
-    }
 
     # Stop webdriver and return data
     browser.quit()
-    return data
+    return mars_data
 
 
 
